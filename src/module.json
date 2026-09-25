@@ -1,0 +1,10 @@
+{
+  "id": "tidy-tasque",
+  "title": "Tidy Tasque",
+  "description": "Collapses sheet header buttons into a dropdown and adds a right-click header menu.",
+  "version": "0.1.0",
+  "compatibility": { "minimum": "13", "verified": "14", "maximum": "14" },
+  "languages": [{ "lang": "en", "name": "English", "path": "languages/en.json" }],
+  "styles": ["style.css"],
+  "esmodules": ["scripts/module.js"]
+}

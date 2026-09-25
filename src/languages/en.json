@@ -1,0 +1,18 @@
+{
+  "TIDY_TASQUE": {
+    "mode": {
+      "name": "Header Buttons",
+      "hint": "Show sheet header buttons as a ribbon, or collapse them into a dropdown. Right-clicking the sheet always opens the menu (shift + right-click for the browser menu).",
+      "ribbon": "Ribbon",
+      "dropdown": "Dropdown"
+    },
+    "toggle": "Controls",
+    "macros": {
+      "name": "Menu Macros",
+      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. The macro receives app, document, actor and token."
+    },
+    "group": {
+      "macros": "Macros"
+    }
+  }
+}
