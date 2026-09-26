@@ -7,14 +7,6 @@
       "dropdown": "Dropdown"
     },
     "toggle": "Controls",
-    "macros": {
-      "name": "Menu Macros",
-      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. Each runs as macro({ app: ActorSheet | ItemSheet, document: Actor | Item, item: Item | null, actor: Actor | null, token: TokenDocument | null })."
-    },
-    "itemMacros": {
-      "name": "Item Menu Macros",
-      "hint": "Macro UUIDs to add to the item section shown when right-clicking an item on an actor sheet. Each runs as macro({ app: ItemSheet, document: Item, item: Item, actor: Actor, token: TokenDocument | null })."
-    },
     "group": {
       "macros": "Macros",
       "sheet": "Sheet"
@@ -24,6 +16,24 @@
       "copyUuid": "Copy UUID",
       "copied": "Copied {uuid}",
       "delete": "Delete"
+    },
+    "picker": {
+      "name": "Menu Macros",
+      "label": "Choose Macros",
+      "menuHint": "Pick macros to add to the right-click sheet menu and the item row section.",
+      "hint": "Sheet menu: where the macro shows in the right-click sheet menu. Item rows: also show it when right-clicking an item on an actor sheet. Macros run as macro({ app, document, item, actor, token }).",
+      "filter": "Filter macros",
+      "empty": "No world macros you can run.",
+      "off": "Off",
+      "all": "All sheets",
+      "actor": "Actor sheets",
+      "item": "Item sheets",
+      "sheet": "Sheet menu",
+      "rows": "Item rows",
+      "otherSheet": "Other sheet macros",
+      "otherRows": "Other item row macros",
+      "otherHint": "Comma separated uuids for compendium macros. Prefix with actor: or item: to limit to that sheet type.",
+      "save": "Save"
     }
   }
 }

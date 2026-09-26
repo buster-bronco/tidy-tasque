@@ -1,5 +1,6 @@
 import "../styles/style.scss";
 import { ID, api, contextOf, groupedEntries, run, type MenuContext, type MenuEntry } from "./api";
+import { MacroPicker } from "./picker";
 
 let menu: HTMLMenuElement | null = null;
 
@@ -218,22 +219,17 @@ Hooks.once("init", () => {
     },
   });
 
-  game.settings.register(ID, "macros", {
-    name: "TIDY_TASQUE.macros.name",
-    hint: "TIDY_TASQUE.macros.hint",
-    scope: "client",
-    config: true,
-    type: String,
-    default: "",
-  });
+  // both filled in by the macro picker menu
+  game.settings.register(ID, "macros", { scope: "client", config: false, type: String, default: "" });
+  game.settings.register(ID, "itemMacros", { scope: "client", config: false, type: String, default: "" });
 
-  game.settings.register(ID, "itemMacros", {
-    name: "TIDY_TASQUE.itemMacros.name",
-    hint: "TIDY_TASQUE.itemMacros.hint",
-    scope: "client",
-    config: true,
-    type: String,
-    default: "",
+  game.settings.registerMenu(ID, "macroPicker", {
+    name: "TIDY_TASQUE.picker.name",
+    label: "TIDY_TASQUE.picker.label",
+    hint: "TIDY_TASQUE.picker.menuHint",
+    icon: "fa-solid fa-code",
+    type: MacroPicker,
+    restricted: false,
   });
 
   game.modules.get(ID).api = api;

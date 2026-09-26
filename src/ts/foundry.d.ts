@@ -3,6 +3,7 @@
 declare const game: any;
 declare const ui: any;
 declare const Hooks: any;
+declare const foundry: any;
 
 declare module "*.scss";
 declare function fromUuidSync(uuid: string): any;
