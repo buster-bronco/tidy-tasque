@@ -9,7 +9,7 @@
     "toggle": "Controls",
     "macros": {
       "name": "Menu Macros",
-      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. The macro receives app, document, actor and token."
+      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. Each runs as macro({ app: ActorSheet | ItemSheet, document: Actor | Item, actor: Actor | null, token: TokenDocument | null })."
     },
     "group": {
       "macros": "Macros"
