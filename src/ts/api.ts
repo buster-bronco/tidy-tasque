@@ -50,7 +50,7 @@ export function contextOf(app: any): MenuContext {
   return { app, document, item, actor, token };
 }
 
-// world setting holds macro uuids, one per line or comma separated
+// client setting holds macro uuids, one per line or comma separated
 function macroUuids(key: string): string[] {
   const raw: string = game.settings.get(ID, key) ?? "";
   return raw.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);

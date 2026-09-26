@@ -221,7 +221,7 @@ Hooks.once("init", () => {
   game.settings.register(ID, "macros", {
     name: "TIDY_TASQUE.macros.name",
     hint: "TIDY_TASQUE.macros.hint",
-    scope: "world",
+    scope: "client",
     config: true,
     type: String,
     default: "",
@@ -230,7 +230,7 @@ Hooks.once("init", () => {
   game.settings.register(ID, "itemMacros", {
     name: "TIDY_TASQUE.itemMacros.name",
     hint: "TIDY_TASQUE.itemMacros.hint",
-    scope: "world",
+    scope: "client",
     config: true,
     type: String,
     default: "",
