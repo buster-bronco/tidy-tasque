@@ -50,11 +50,14 @@ Entry fields:
 | `order` | sort within the section, default `0` |
 | `scope` | where in the menu: `"sheet"` (default), `"item"` for the item section, or `"any"` for both |
 | `documentType` | which sheets: `"actor"` or `"item"`; unset shows on both |
+| `subtypes` | only these `document.type` values, like `["character", "npc"]` or `["spell"]`; unset shows on all |
 | `condition(context)` | hide the entry when it returns false |
 | `callback(context)` | run on click; may be async |
 | `children` | submenu entries, same shape |
 
 `scope` and `documentType` stack. An item row's section counts as an item, so `{ scope: "any", documentType: "item" }` shows on item sheets and item rows but not the actor sheet menu.
+
+`subtypes` come from the game system, so check `game.documentTypes.Actor` or `game.documentTypes.Item` for the names. Some systems reuse a name across both (pf2e has `loot` actors and items), so pair it with `documentType` when that matters.
 
 `context` is `{ app, document, item, actor, token }`. In the item section `app` is the item's (unrendered) sheet and `document` the item. `item` is the document when it's an item, else `null`. `actor` is the sheet's actor, or the item's owning actor. `token` is the actor's token document, or its first active token on the canvas.
 

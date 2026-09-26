@@ -23,6 +23,8 @@ export interface MenuEntry {
   order?: number;
   scope?: MenuScope;
   documentType?: DocumentType;
+  // document.type, like "character" or "spell"; set by the game system
+  subtypes?: string[];
   condition?: (context: MenuContext) => boolean;
   callback?: (context: MenuContext) => unknown;
   children?: MenuEntry[];
@@ -98,6 +100,7 @@ function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
 function passes(entry: MenuEntry, context: MenuContext): boolean {
   // documentName is "Actor" or "Item"
   if (entry.documentType && context.document?.documentName?.toLowerCase() !== entry.documentType) return false;
+  if (entry.subtypes?.length && !entry.subtypes.includes(context.document?.type)) return false;
   if (!entry.condition) return true;
   try {
     return !!entry.condition(context);
