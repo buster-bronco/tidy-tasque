@@ -8,14 +8,15 @@
     },
     "toggle": "Controls",
     "group": {
-      "macros": "Macros",
+      "sheetMacros": "Sheet Macros",
+      "itemMacros": "Item Macros",
       "sheet": "Sheet"
     },
     "item": {
       "open": "Open",
       "copyUuid": "Copy UUID",
       "copied": "Copied {uuid}",
-      "delete": "Delete"
+      "delete": "Delete Item"
     },
     "picker": {
       "name": "Menu Macros",

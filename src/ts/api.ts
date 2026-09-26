@@ -89,7 +89,7 @@ function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
       id: `macro.${uuid}`,
       label: macro.name,
       icon: "fa-solid fa-code",
-      group: "TIDY_TASQUE.group.macros",
+      group: scope === "item" ? "TIDY_TASQUE.group.itemMacros" : "TIDY_TASQUE.group.sheetMacros",
       documentType: documentType ?? undefined,
       callback: (context) => macro.execute({ ...context }),
     });
