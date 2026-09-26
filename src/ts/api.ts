@@ -1,8 +1,11 @@
 export const ID = "tidy-tasque";
-export const API_VERSION = 2;
+export const API_VERSION = 3;
 
 // sheet: whole-sheet menu, item: item row section on actor sheets
 export type MenuScope = "sheet" | "item" | "any";
+
+// the kind of document the menu was opened on
+export type DocumentType = "actor" | "item";
 
 export interface MenuContext {
   app: any;
@@ -19,6 +22,7 @@ export interface MenuEntry {
   group?: string;
   order?: number;
   scope?: MenuScope;
+  documentType?: DocumentType;
   condition?: (context: MenuContext) => boolean;
   callback?: (context: MenuContext) => unknown;
   children?: MenuEntry[];
@@ -50,16 +54,33 @@ export function contextOf(app: any): MenuContext {
   return { app, document, item, actor, token };
 }
 
-// client setting holds macro uuids, one per line or comma separated
-function macroUuids(key: string): string[] {
-  const raw: string = game.settings.get(ID, key) ?? "";
-  return raw.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
+export interface MacroRef {
+  uuid: string;
+  documentType: DocumentType | null;
+}
+
+// client setting holds comma separated macro uuids
+// an "actor:" or "item:" prefix sets the documentType
+export function parseRefs(raw: string): MacroRef[] {
+  return raw
+    .split(",")
+    .map((s) => s.trim().match(/^(?:(actor|item)\s*:\s*)?(.+)$/i))
+    .filter((m): m is RegExpMatchArray => !!m)
+    .map(([, type, uuid]) => ({ uuid: uuid.trim(), documentType: (type?.toLowerCase() as DocumentType) ?? null }));
+}
+
+export function formatRefs(refs: MacroRef[]): string {
+  return refs.map(({ uuid, documentType }) => (documentType ? `${documentType}: ${uuid}` : uuid)).join(", ");
+}
+
+export function macroRefs(key: string): MacroRef[] {
+  return parseRefs(game.settings.get(ID, key) ?? "");
 }
 
 // macro.execute(scope) exposes scope keys as script variables
 function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
   const result: MenuEntry[] = [];
-  for (const uuid of macroUuids(scope === "item" ? "itemMacros" : "macros")) {
+  for (const { uuid, documentType } of macroRefs(scope === "item" ? "itemMacros" : "macros")) {
     const macro = fromUuidSync(uuid);
     if (macro?.documentName !== "Macro" || !macro.canExecute) continue;
     result.push({
@@ -67,6 +88,7 @@ function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
       label: macro.name,
       icon: "fa-solid fa-code",
       group: "TIDY_TASQUE.group.macros",
+      documentType: documentType ?? undefined,
       callback: (context) => macro.execute({ ...context }),
     });
   }
@@ -74,6 +96,8 @@ function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
 }
 
 function passes(entry: MenuEntry, context: MenuContext): boolean {
+  // documentName is "Actor" or "Item"
+  if (entry.documentType && context.document?.documentName?.toLowerCase() !== entry.documentType) return false;
   if (!entry.condition) return true;
   try {
     return !!entry.condition(context);

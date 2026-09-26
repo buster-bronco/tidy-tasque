@@ -34,7 +34,7 @@ Hooks.once("tidyTasque.ready", (api) => {
 
 | api | |
 | --- | --- |
-| `version` | api version, currently `2` |
+| `version` | api version, currently `3` |
 | `registerEntry(entry)` | adds or replaces an entry by `id` |
 | `unregisterEntry(id)` | removes one, returns whether it existed |
 | `getEntries()` | all registered entries |
@@ -48,10 +48,13 @@ Entry fields:
 | `icon` | font awesome class |
 | `group` | section label; entries without one share an unlabeled section |
 | `order` | sort within the section, default `0` |
-| `scope` | `"sheet"` (default), `"item"` for the item section, or `"any"` for both |
+| `scope` | where in the menu: `"sheet"` (default), `"item"` for the item section, or `"any"` for both |
+| `documentType` | which sheets: `"actor"` or `"item"`; unset shows on both |
 | `condition(context)` | hide the entry when it returns false |
 | `callback(context)` | run on click; may be async |
 | `children` | submenu entries, same shape |
+
+`scope` and `documentType` stack. An item row's section counts as an item, so `{ scope: "any", documentType: "item" }` shows on item sheets and item rows but not the actor sheet menu.
 
 `context` is `{ app, document, item, actor, token }`. In the item section `app` is the item's (unrendered) sheet and `document` the item. `item` is the document when it's an item, else `null`. `actor` is the sheet's actor, or the item's owning actor. `token` is the actor's token document, or its first active token on the canvas.
 
@@ -59,7 +62,15 @@ Errors thrown from a callback are logged and shown as a notification instead of 
 
 ### From a macro
 
-Put macro UUIDs in **Settings → Tidy Tasque → Menu Macros**, one per line or comma separated. Each shows under a **Macros** section and runs as:
+Open **Settings → Tidy Tasque → Choose Macros** to pick from the world's macros. For each one, **Sheet menu** sets where it shows in the right-click menu (all sheets, actor sheets, or item sheets), and **Item rows** adds it to the item section. Picked macros show under a **Macros** section.
+
+Compendium macros go in the **Other** fields as comma separated UUIDs. Prefix a UUID with `actor:` or `item:` to set its `documentType`:
+
+```
+actor: Compendium.world.macros.Macro.abc123, Compendium.world.macros.Macro.def456
+```
+
+Each runs as:
 
 ```ts
 macro({ app: ActorSheet | ItemSheet, document: Actor | Item, item: Item | null, actor: Actor | null, token: TokenDocument | null })
