@@ -90,13 +90,31 @@ function itemHeaderButtons(item: any): any[] {
   }
 }
 
-function itemSection(target: HTMLMenuElement, item: any) {
+// native per-row edit buttons across different game systems
+const EDIT_CONTROLS = '[data-action="edit-item"], [data-action="spellcasting-edit"], [data-action="itemEdit"], .item-edit';
+
+// the sheet's own edit button for this item, skipping nested rows
+function editControl(item: any, el: HTMLElement): HTMLElement | null {
+  let row = el;
+  for (let p: HTMLElement | null = el; p; p = p.parentElement?.closest<HTMLElement>(ITEM_ROW) ?? null) {
+    if (resolveItem(item.actor, p) === item) row = p;
+  }
+  const owned = [...row.querySelectorAll<HTMLElement>(EDIT_CONTROLS)];
+  return owned.find((c) => resolveItem(item.actor, c.closest<HTMLElement>(ITEM_ROW)) === item) ?? null;
+}
+
+function itemSection(target: HTMLMenuElement, { item, el }: ItemHit) {
   const title = groupHeader(item.name);
   title.classList.add("title");
   target.append(title);
 
   if (item.testUserPermission(game.user, "LIMITED")) {
-    target.append(buttonRow("fa-solid fa-pen-to-square", game.i18n.localize("TIDY_TASQUE.item.open"), () => item.sheet.render(true)));
+    const open = () => {
+      const control = editControl(item, el);
+      if (control) control.click();
+      else item.sheet.render(true);
+    };
+    target.append(buttonRow("fa-solid fa-pen-to-square", game.i18n.localize("TIDY_TASQUE.item.open"), open));
   }
   for (const b of itemHeaderButtons(item)) {
     target.append(buttonRow(b.icon ?? "", game.i18n.localize(b.label ?? ""), (event) => b.onclick?.(event)));
@@ -120,16 +138,16 @@ function itemSection(target: HTMLMenuElement, item: any) {
   target.append(groupHeader(game.i18n.localize("TIDY_TASQUE.group.sheet")));
 }
 
-function openMenu(app: any, root: HTMLElement, x: number, y: number, item: any = null) {
+function openMenu(app: any, root: HTMLElement, x: number, y: number, hit: ItemHit | null = null) {
   closeMenu();
   const buttons = headerButtons(root);
   const context = contextOf(app);
   const groups = groupedEntries(context);
-  if (!item && !buttons.length && !groups.size) return;
+  if (!hit && !buttons.length && !groups.size) return;
 
   menu = document.createElement("menu");
   menu.className = `${ID}-menu`;
-  if (item) itemSection(menu, item);
+  if (hit) itemSection(menu, hit);
 
   const closeRows: HTMLLIElement[] = [];
   for (const a of buttons) {
@@ -190,15 +208,41 @@ function decorate(app: any) {
   });
 }
 
+const ITEM_ROW = "[data-item-uuid], [data-item-id]";
+
+interface ItemHit {
+  item: any;
+  el: HTMLElement;
+}
+
 // item rows carry data-item-id, some systems data-item-uuid
-function itemAt(app: any, target: HTMLElement): any {
-  const actor = app.document ?? app.object;
-  if (actor?.documentName !== "Actor") return null;
-  const el = target.closest<HTMLElement>("[data-item-uuid], [data-item-id]");
+function resolveItem(actor: any, el: HTMLElement | null): any {
   if (!el) return null;
   const { itemUuid, itemId } = el.dataset;
-  const item = itemUuid ? fromUuidSync(itemUuid) : actor.items.get(itemId);
+  const item = itemUuid ? fromUuidSync(itemUuid) : itemId ? actor?.items.get(itemId) : null;
   return item?.documentName === "Item" ? item : null;
+}
+
+function itemAt(app: any, target: HTMLElement): ItemHit | null {
+  const actor = app.document ?? app.object;
+  if (actor?.documentName !== "Actor") return null;
+  const el = target.closest<HTMLElement>(ITEM_ROW);
+  if (el) {
+    const item = resolveItem(actor, el);
+    return item ? { item, el } : null;
+  }
+  // fields like pf2e's background only tag a nearby control; take a lone item within search_depth levels
+  let p = target.parentElement;
+  const search_depth = 2;
+  for (let depth = 0; p && depth < search_depth; depth++, p = p.parentElement) {
+    const hits = [...p.querySelectorAll<HTMLElement>(ITEM_ROW)]
+      .map((e) => ({ item: resolveItem(actor, e), el: e }))
+      .filter((h) => h.item);
+    const distinct = new Set(hits.map((h) => h.item));
+    if (distinct.size === 1) return hits[0];
+    if (distinct.size > 1) return null;
+  }
+  return null;
 }
 
 Hooks.once("init", () => {
