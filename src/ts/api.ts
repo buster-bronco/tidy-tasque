@@ -1,9 +1,13 @@
 export const ID = "tidy-tasque";
-export const API_VERSION = 1;
+export const API_VERSION = 2;
+
+// sheet: whole-sheet menu, item: item row section on actor sheets
+export type MenuScope = "sheet" | "item" | "any";
 
 export interface MenuContext {
   app: any;
   document: any;
+  item: any;
   actor: any;
   token: any;
 }
@@ -14,6 +18,7 @@ export interface MenuEntry {
   icon?: string;
   group?: string;
   order?: number;
+  scope?: MenuScope;
   condition?: (context: MenuContext) => boolean;
   callback?: (context: MenuContext) => unknown;
   children?: MenuEntry[];
@@ -39,21 +44,22 @@ export function getEntries(): MenuEntry[] {
 // appv1 sheets expose the doc as app.document (older ones as app.object)
 export function contextOf(app: any): MenuContext {
   const document = app.document ?? app.object ?? null;
+  const item = document?.documentName === "Item" ? document : null;
   const actor = document?.documentName === "Actor" ? document : document?.actor ?? null;
   const token = actor?.token ?? actor?.getActiveTokens?.()[0]?.document ?? null;
-  return { app, document, actor, token };
+  return { app, document, item, actor, token };
 }
 
 // world setting holds macro uuids, one per line or comma separated
-function macroUuids(): string[] {
-  const raw: string = game.settings.get(ID, "macros") ?? "";
+function macroUuids(key: string): string[] {
+  const raw: string = game.settings.get(ID, key) ?? "";
   return raw.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
 }
 
 // macro.execute(scope) exposes scope keys as script variables
-function macroEntries(): MenuEntry[] {
+function macroEntries(scope: "sheet" | "item"): MenuEntry[] {
   const result: MenuEntry[] = [];
-  for (const uuid of macroUuids()) {
+  for (const uuid of macroUuids(scope === "item" ? "itemMacros" : "macros")) {
     const macro = fromUuidSync(uuid);
     if (macro?.documentName !== "Macro" || !macro.canExecute) continue;
     result.push({
@@ -87,9 +93,10 @@ function visible(list: MenuEntry[], context: MenuContext): MenuEntry[] {
 }
 
 // grouped in first-seen order; ungrouped entries share the "" group
-export function groupedEntries(context: MenuContext): Map<string, MenuEntry[]> {
+export function groupedEntries(context: MenuContext, scope: "sheet" | "item" = "sheet"): Map<string, MenuEntry[]> {
   const groups = new Map<string, MenuEntry[]>();
-  for (const entry of visible([...getEntries(), ...macroEntries()], context)) {
+  const scoped = getEntries().filter((entry) => (entry.scope ?? "sheet") === scope || entry.scope === "any");
+  for (const entry of visible([...scoped, ...macroEntries(scope)], context)) {
     const key = entry.group ?? "";
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(entry);

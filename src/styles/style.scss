@@ -100,3 +100,22 @@
 .tidy-tasque-menu li.parent:hover > .tidy-tasque-submenu {
   display: block;
 }
+
+/* first section needs no divider */
+.tidy-tasque-menu li.group:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+/* item name heading the item section */
+.tidy-tasque-menu li.group.title,
+.tidy-tasque-menu li.group.title:hover {
+  text-transform: none;
+  font-size: var(--font-size-13, 13px);
+  font-weight: bold;
+  color: #efe6d8;
+}
+
+.tidy-tasque-menu li.danger:hover {
+  color: #ff8a80;
+}

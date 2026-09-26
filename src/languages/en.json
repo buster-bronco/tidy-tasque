@@ -9,10 +9,21 @@
     "toggle": "Controls",
     "macros": {
       "name": "Menu Macros",
-      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. Each runs as macro({ app: ActorSheet | ItemSheet, document: Actor | Item, actor: Actor | null, token: TokenDocument | null })."
+      "hint": "Macro UUIDs to add to the right-click menu, one per line or comma separated. Each runs as macro({ app: ActorSheet | ItemSheet, document: Actor | Item, item: Item | null, actor: Actor | null, token: TokenDocument | null })."
+    },
+    "itemMacros": {
+      "name": "Item Menu Macros",
+      "hint": "Macro UUIDs to add to the item section shown when right-clicking an item on an actor sheet. Each runs as macro({ app: ItemSheet, document: Item, item: Item, actor: Actor, token: TokenDocument | null })."
     },
     "group": {
-      "macros": "Macros"
+      "macros": "Macros",
+      "sheet": "Sheet"
+    },
+    "item": {
+      "open": "Open",
+      "copyUuid": "Copy UUID",
+      "copied": "Copied {uuid}",
+      "delete": "Delete"
     }
   }
 }
