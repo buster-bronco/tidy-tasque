@@ -7,6 +7,9 @@ function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
+// macro rows only; the column header shares the .macro class
+const MACRO_ROW = ".macro[data-uuid]";
+
 function t(key: string): string {
   return game.i18n.localize(`TIDY_TASQUE.picker.${key}`);
 }
@@ -69,14 +72,18 @@ export class MacroPicker extends ApplicationV2 {
     const filter = root.querySelector<HTMLInputElement>("input.filter")!;
     filter.addEventListener("input", () => {
       const query = filter.value.trim().toLowerCase();
-      for (const row of root.querySelectorAll<HTMLElement>(".macro")) row.hidden = !row.dataset.name!.includes(query);
+      for (const row of root.querySelectorAll<HTMLElement>(MACRO_ROW)) row.hidden = !row.dataset.name!.includes(query);
+    });
+    // enter in a form input triggers implicit submit
+    filter.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") event.preventDefault();
     });
   }
 
   static async onSubmit(_event: Event, form: HTMLFormElement): Promise<void> {
     const sheet: MacroRef[] = [];
     const rows: MacroRef[] = [];
-    for (const row of form.querySelectorAll<HTMLElement>(".macro")) {
+    for (const row of form.querySelectorAll<HTMLElement>(MACRO_ROW)) {
       const uuid = row.dataset.uuid!;
       const value = row.querySelector("select")!.value;
       if (value !== "off") sheet.push({ uuid, documentType: value === "all" ? null : (value as DocumentType) });
